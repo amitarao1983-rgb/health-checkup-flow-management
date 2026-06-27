@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: health-checkup-flow
+    runtime: node
+    plan: free
+    buildCommand: npm run install:all && npm run build
+    startCommand: node backend/dist/server.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production

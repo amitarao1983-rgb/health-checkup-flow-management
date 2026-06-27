@@ -14,6 +14,11 @@ const PORT = Number(process.env.PORT) || 3001;
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const frontendDist = path.resolve(__dirname, '../../frontend/dist');
 
+const PUBLIC_URL =
+  process.env.RENDER_EXTERNAL_URL ||
+  process.env.PUBLIC_URL ||
+  `http://localhost:${PORT}`;
+
 const app = express();
 const httpServer = createServer(app);
 
@@ -28,7 +33,7 @@ app.get('/health', (_req, res) => {
   res.json({
     status: 'ok',
     service: 'Health Check-up Flow',
-    appUrl: `http://localhost:${PORT}`,
+    appUrl: PUBLIC_URL,
   });
 });
 
@@ -73,7 +78,7 @@ io.on('connection', (socket) => {
 
 setInterval(broadcastUpdates, 5000);
 
-const APP_URL = `http://localhost:${PORT}`;
+const APP_URL = PUBLIC_URL;
 
 httpServer.listen(PORT, () => {
   console.log('');
