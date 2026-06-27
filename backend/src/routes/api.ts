@@ -11,6 +11,11 @@ import { HealthPackage, DepartmentId } from '../types/index.js';
 
 const router = Router();
 
+function param(value: string | string[] | undefined): string {
+  if (Array.isArray(value)) return value[0] ?? '';
+  return value ?? '';
+}
+
 router.get('/packages', (_req: Request, res: Response) => {
   res.json(Object.entries(PACKAGE_LABELS).map(([id, name]) => ({ id, name })));
 });
@@ -45,7 +50,7 @@ router.get('/patients', (_req: Request, res: Response) => {
 });
 
 router.get('/patients/:id', (req: Request, res: Response) => {
-  const patient = store.getPatient(req.params.id);
+  const patient = store.getPatient(param(req.params.id));
   if (!patient) {
     res.status(404).json({ error: 'Patient not found' });
     return;
@@ -77,7 +82,7 @@ router.post('/check-in', (req: Request, res: Response) => {
 });
 
 router.get('/patients/:id/queue', (req: Request, res: Response) => {
-  const patient = store.getPatient(req.params.id);
+  const patient = store.getPatient(param(req.params.id));
   if (!patient) {
     res.status(404).json({ error: 'Patient not found' });
     return;
@@ -93,12 +98,12 @@ router.get('/patients/:id/queue', (req: Request, res: Response) => {
 });
 
 router.get('/patients/:id/notifications', (req: Request, res: Response) => {
-  const notifications = store.notifications.get(req.params.id) ?? [];
+  const notifications = store.notifications.get(param(req.params.id)) ?? [];
   res.json(notifications);
 });
 
 router.get('/queue/:departmentId', (req: Request, res: Response) => {
-  const departmentId = req.params.departmentId as DepartmentId;
+  const departmentId = param(req.params.departmentId) as DepartmentId;
   const stats = queueEngine.getDepartmentStats(departmentId);
   res.json(stats);
 });
@@ -109,8 +114,8 @@ router.get('/queue', (_req: Request, res: Response) => {
 
 router.post('/queue/:departmentId/start/:entryId', (req: Request, res: Response) => {
   const entry = queueEngine.startExamination(
-    req.params.entryId,
-    req.params.departmentId as DepartmentId
+    param(req.params.entryId),
+    param(req.params.departmentId) as DepartmentId
   );
   if (!entry) {
     res.status(404).json({ error: 'Queue entry not found' });
@@ -121,8 +126,8 @@ router.post('/queue/:departmentId/start/:entryId', (req: Request, res: Response)
 
 router.post('/queue/:departmentId/complete/:entryId', (req: Request, res: Response) => {
   const entry = queueEngine.completeExamination(
-    req.params.entryId,
-    req.params.departmentId as DepartmentId
+    param(req.params.entryId),
+    param(req.params.departmentId) as DepartmentId
   );
   if (!entry) {
     res.status(404).json({ error: 'Queue entry not found' });
