@@ -11,8 +11,18 @@ import { queueEngine } from './services/queueEngine.js';
 import { aiOptimizer } from './services/aiOptimizer.js';
 
 const PORT = Number(process.env.PORT) || 3001;
+const HOST = process.env.HOST || '0.0.0.0';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const frontendDist = path.resolve(__dirname, '../../frontend/dist');
+
+function resolveFrontendDist(): string {
+  const candidates = [
+    path.resolve(__dirname, '../../frontend/dist'),
+    path.join(process.cwd(), 'frontend', 'dist'),
+  ];
+  return candidates.find((p) => existsSync(p)) ?? candidates[0];
+}
+
+const frontendDist = resolveFrontendDist();
 
 const PUBLIC_URL =
   process.env.RENDER_EXTERNAL_URL ||
@@ -61,6 +71,13 @@ if (existsSync(frontendDist)) {
 
 seedData(true);
 
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught exception:', err);
+});
+process.on('unhandledRejection', (reason) => {
+  console.error('Unhandled rejection:', reason);
+});
+
 function broadcastUpdates() {
   io.emit('queue:update', queueEngine.getAllDepartmentStats());
   io.emit('ai:predictions', aiOptimizer.getAlerts());
@@ -80,17 +97,20 @@ setInterval(broadcastUpdates, 5000);
 
 const APP_URL = PUBLIC_URL;
 
-httpServer.listen(PORT, () => {
+httpServer.listen(PORT, HOST, () => {
   console.log('');
   console.log('  ╔══════════════════════════════════════════════════════╗');
   console.log('  ║         HealthFirst360 — Check-up Flow App           ║');
   console.log('  ╠══════════════════════════════════════════════════════╣');
   console.log(`  ║  Open in browser:  ${APP_URL.padEnd(33)}║`);
+  console.log(`  ║  Listening on:     ${HOST}:${PORT}`.padEnd(55) + '║');
   console.log('  ║  API + Frontend combined on one port                 ║');
   console.log('  ╚══════════════════════════════════════════════════════╝');
   console.log('');
   if (!existsSync(frontendDist)) {
     console.warn('  ⚠ Frontend dist missing — run: npm run build:frontend');
+  } else {
+    console.log(`  ✓ Serving frontend from: ${frontendDist}`);
   }
 });
 
