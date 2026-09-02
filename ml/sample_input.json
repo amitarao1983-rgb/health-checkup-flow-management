@@ -1,0 +1,18 @@
+{
+  "package": "comprehensive",
+  "hour": 10,
+  "staffing": 1.0,
+  "current_department": "ecg",
+  "pending_departments": ["ecg", "xray", "usg", "echo2d", "doctor"],
+  "queues": {
+    "ecg": {"waiting": 8, "in_progress": 2},
+    "xray": {"waiting": 1, "in_progress": 1},
+    "usg": {"waiting": 4, "in_progress": 2},
+    "mammography": {"waiting": 2, "in_progress": 1},
+    "echo2d": {"waiting": 3, "in_progress": 1},
+    "tmt": {"waiting": 2, "in_progress": 1},
+    "dental": {"waiting": 0, "in_progress": 0},
+    "lab": {"waiting": 6, "in_progress": 3},
+    "doctor": {"waiting": 5, "in_progress": 2}
+  }
+}
